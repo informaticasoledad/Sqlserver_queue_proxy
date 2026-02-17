@@ -8,7 +8,15 @@ services:
     environment:
       DOTNET_ENVIRONMENT: ${DOTNET_ENVIRONMENT:-Production}
       TDS_PROXY_ADMIN_TOKEN: ${TDS_PROXY_ADMIN_TOKEN:-change-me}
+      TDS_PROXY_TLS_CERT_PATH: ${TDS_PROXY_TLS_CERT_PATH:-/app/certs/tds-proxy-dev.pfx}
+      TDS_PROXY_TLS_CERT_PASSWORD: ${TDS_PROXY_TLS_CERT_PASSWORD:-devpassword}
       Proxy__QueueEngine: ${PROXY_QUEUE_ENGINE:-Channel}
+      Proxy__WorkerCount: ${PROXY_WORKER_COUNT:-16}
+      Proxy__ForceQueueOnly: true
+      Proxy__FallbackToPassthroughOnEncryptOff: ${PROXY_FALLBACK_TO_PASSTHROUGH_ON_ENCRYPT_OFF:-true}
+      Proxy__Tls__Enabled: ${PROXY_TLS_ENABLED:-true}
+      Proxy__Tls__TrustTargetServerCertificate: ${PROXY_TLS_TRUST_TARGET_CERT:-true}
+      Proxy__Tls__TargetServerName: ${PROXY_TLS_TARGET_SERVER_NAME:-}
       Proxy__TargetHost: ${PROXY_TARGET_HOST:-host.docker.internal}
       Proxy__TargetPort: ${PROXY_TARGET_PORT:-1433}
       Proxy__MaxMessageBytes: ${PROXY_MAX_MESSAGE_BYTES:-1048576}
@@ -17,6 +25,8 @@ services:
       Observability__EnableAdminEndpoint: ${OBS_ENABLE_ADMIN_ENDPOINT:-false}
       Observability__AllowRemoteAdmin: ${OBS_ALLOW_REMOTE_ADMIN:-false}
       Observability__EnableOtlpExporter: ${OBS_ENABLE_OTLP_EXPORTER:-false}
+    volumes:
+      - "${TLS_CERT_HOST_PATH:-./certs/tds-proxy-dev.pfx}:/app/certs/tds-proxy-dev.pfx:ro"
     ports:
       - "${PROXY_LISTEN_PORT:-14330}:14330"
       - "${OBS_HEALTH_PORT:-18080}:18080"
