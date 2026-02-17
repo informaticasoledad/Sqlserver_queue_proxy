@@ -3,19 +3,19 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: tdsqueue-proxy:latest
-    container_name: tdsqueue-proxy-channel
+    image: ${TDS_PROXY_IMAGE:-tdsqueue-proxy:latest}
+    container_name: ${TDS_PROXY_CONTAINER_NAME_CHANNEL:-tdsqueue-proxy-channel}
     environment:
-      DOTNET_ENVIRONMENT: Production
-      TDS_PROXY_ADMIN_TOKEN: dev-admin-token
-      Proxy__QueueEngine: Channel
-      Proxy__TargetHost: host.docker.internal
-      Proxy__TargetPort: 1433
-      Observability__HealthPort: 18080
-      Observability__EnableAdminEndpoint: true
-      Observability__EnableOtlpExporter: false
+      DOTNET_ENVIRONMENT: ${DOTNET_ENVIRONMENT:-Production}
+      TDS_PROXY_ADMIN_TOKEN: ${TDS_PROXY_ADMIN_TOKEN:-change-me}
+      Proxy__QueueEngine: ${PROXY_QUEUE_ENGINE_CHANNEL:-Channel}
+      Proxy__TargetHost: ${PROXY_TARGET_HOST:-host.docker.internal}
+      Proxy__TargetPort: ${PROXY_TARGET_PORT:-1433}
+      Observability__HealthPort: ${OBS_HEALTH_PORT:-18080}
+      Observability__EnableAdminEndpoint: ${OBS_ENABLE_ADMIN_ENDPOINT:-true}
+      Observability__EnableOtlpExporter: ${OBS_ENABLE_OTLP_EXPORTER:-false}
     ports:
-      - "14330:14330"
-      - "18080:18080"
+      - "${PROXY_LISTEN_PORT:-14330}:14330"
+      - "${OBS_HEALTH_PORT:-18080}:18080"
     extra_hosts:
       - "host.docker.internal:host-gateway"

@@ -1,13 +1,13 @@
 services:
   rabbitmq:
     image: rabbitmq:3.13-management
-    container_name: tdsqueue-rabbitmq
+    container_name: ${RABBITMQ_CONTAINER_NAME:-tdsqueue-rabbitmq}
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-guest}
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "${RABBITMQ_PORT:-5672}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 5s
@@ -18,28 +18,28 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: tdsqueue-proxy:latest
-    container_name: tdsqueue-proxy-rabbitmq
+    image: ${TDS_PROXY_IMAGE:-tdsqueue-proxy:latest}
+    container_name: ${TDS_PROXY_CONTAINER_NAME_RABBITMQ:-tdsqueue-proxy-rabbitmq}
     depends_on:
       rabbitmq:
         condition: service_healthy
     environment:
-      DOTNET_ENVIRONMENT: Production
-      TDS_PROXY_ADMIN_TOKEN: dev-admin-token
-      Proxy__QueueEngine: RabbitMq
-      Proxy__TargetHost: host.docker.internal
-      Proxy__TargetPort: 1433
-      Proxy__RabbitMq__HostName: rabbitmq
-      Proxy__RabbitMq__Port: 5672
-      Proxy__RabbitMq__UserName: guest
-      Proxy__RabbitMq__Password: guest
-      Proxy__RabbitMq__VirtualHost: /
-      Proxy__RabbitMq__QueueName: tdsqueue.proxy.requests.docker
-      Observability__HealthPort: 18080
-      Observability__EnableAdminEndpoint: true
-      Observability__EnableOtlpExporter: false
+      DOTNET_ENVIRONMENT: ${DOTNET_ENVIRONMENT:-Production}
+      TDS_PROXY_ADMIN_TOKEN: ${TDS_PROXY_ADMIN_TOKEN:-change-me}
+      Proxy__QueueEngine: ${PROXY_QUEUE_ENGINE_RABBITMQ:-RabbitMq}
+      Proxy__TargetHost: ${PROXY_TARGET_HOST:-host.docker.internal}
+      Proxy__TargetPort: ${PROXY_TARGET_PORT:-1433}
+      Proxy__RabbitMq__HostName: ${PROXY_RABBITMQ_HOSTNAME:-rabbitmq}
+      Proxy__RabbitMq__Port: ${PROXY_RABBITMQ_PORT:-5672}
+      Proxy__RabbitMq__UserName: ${PROXY_RABBITMQ_USERNAME:-guest}
+      Proxy__RabbitMq__Password: ${PROXY_RABBITMQ_PASSWORD:-guest}
+      Proxy__RabbitMq__VirtualHost: ${PROXY_RABBITMQ_VIRTUAL_HOST:-/}
+      Proxy__RabbitMq__QueueName: ${PROXY_RABBITMQ_QUEUE_NAME:-tdsqueue.proxy.requests.docker}
+      Observability__HealthPort: ${OBS_HEALTH_PORT:-18080}
+      Observability__EnableAdminEndpoint: ${OBS_ENABLE_ADMIN_ENDPOINT:-true}
+      Observability__EnableOtlpExporter: ${OBS_ENABLE_OTLP_EXPORTER:-false}
     ports:
-      - "14330:14330"
-      - "18080:18080"
+      - "${PROXY_LISTEN_PORT:-14330}:14330"
+      - "${OBS_HEALTH_PORT:-18080}:18080"
     extra_hosts:
       - "host.docker.internal:host-gateway"

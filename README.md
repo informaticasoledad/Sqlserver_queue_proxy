@@ -504,12 +504,13 @@ Requisito en config:
 
 Archivo:
 
-- `/Users/carlosleyvagarcia/workfolder/TDSQueue/docker-compose.redis.yml`
+- `docker-compose.redis.yml`
 
 Levantar:
 
 ```bash
-cd /Users/carlosleyvagarcia/workfolder/TDSQueue
+cp .env.example .env
+# Edita .env con tus credenciales/hosts reales antes de levantar
 docker compose -f docker-compose.redis.yml up -d --build
 ```
 
@@ -523,12 +524,11 @@ docker compose -f docker-compose.redis.yml down
 
 Archivo:
 
-- `/Users/carlosleyvagarcia/workfolder/TDSQueue/docker-compose.rabbitmq.yml`
+- `docker-compose.rabbitmq.yml`
 
 Levantar:
 
 ```bash
-cd /Users/carlosleyvagarcia/workfolder/TDSQueue
 docker compose -f docker-compose.rabbitmq.yml up -d --build
 ```
 
@@ -538,11 +538,30 @@ Parar:
 docker compose -f docker-compose.rabbitmq.yml down
 ```
 
+### Docker Compose con Channel (in-memory)
+
+Archivo:
+
+- `docker-compose.channels.yml`
+
+Levantar:
+
+```bash
+docker compose -f docker-compose.channels.yml up -d --build
+```
+
+Parar:
+
+```bash
+docker compose -f docker-compose.channels.yml down
+```
+
 Notas Compose:
 
-- Ambos despliegues esperan SQL Server en `host.docker.internal:1433`.
-- Cambia `Proxy__TargetHost`/`Proxy__TargetPort` si tu SQL está en otra red.
-- En RabbitMQ puedes abrir UI en `http://localhost:15672` (`guest/guest`).
+- Los compose leen variables desde `.env` (incluyendo host/puerto de SQL Server y credenciales).
+- Para compartir configuración base sin secretos, usa `.env.example`.
+- Cambia `PROXY_TARGET_HOST`/`PROXY_TARGET_PORT` en `.env` si tu SQL está en otra red.
+- En RabbitMQ puedes abrir UI en `http://localhost:${RABBITMQ_MANAGEMENT_PORT}`.
 - Si habilitas TLS en el proxy, añade al servicio:
   - variables `TDS_PROXY_TLS_CERT_PATH`, `TDS_PROXY_TLS_CERT_PASSWORD`
   - volumen de solo lectura con el `.pfx` (ej. `/app/certs/tds-proxy-dev.pfx`).

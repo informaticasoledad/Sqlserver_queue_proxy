@@ -41,6 +41,8 @@ publish/
 # ASP.NET Core / local environment
 appsettings.Development.json
 secrets.json
+.env
+!.env.example
 
 # Rider
 *.sln.iml
