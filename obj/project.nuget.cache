@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "dgSpecHash": "BtSVm0Pxvdc=",
+  "success": true,
+  "projectFilePath": "/Users/carlosleyvagarcia/workfolder/Sqlserver_queue_proxy/TDSQueue.Proxy.csproj",
+  "expectedPackageFiles": [
+    "/Users/carlosleyvagarcia/.nuget/packages/opentelemetry/1.15.0/opentelemetry.1.15.0.nupkg.sha512",
+    "/Users/carlosleyvagarcia/.nuget/packages/opentelemetry.api/1.15.0/opentelemetry.api.1.15.0.nupkg.sha512",
+    "/Users/carlosleyvagarcia/.nuget/packages/opentelemetry.api.providerbuilderextensions/1.15.0/opentelemetry.api.providerbuilderextensions.1.15.0.nupkg.sha512",
+    "/Users/carlosleyvagarcia/.nuget/packages/opentelemetry.exporter.opentelemetryprotocol/1.15.0/opentelemetry.exporter.opentelemetryprotocol.1.15.0.nupkg.sha512",
+    "/Users/carlosleyvagarcia/.nuget/packages/opentelemetry.extensions.hosting/1.15.0/opentelemetry.extensions.hosting.1.15.0.nupkg.sha512",
+    "/Users/carlosleyvagarcia/.nuget/packages/pipelines.sockets.unofficial/2.2.8/pipelines.sockets.unofficial.2.2.8.nupkg.sha512",
+    "/Users/carlosleyvagarcia/.nuget/packages/rabbitmq.client/6.8.1/rabbitmq.client.6.8.1.nupkg.sha512",
+    "/Users/carlosleyvagarcia/.nuget/packages/stackexchange.redis/2.11.0/stackexchange.redis.2.11.0.nupkg.sha512",
+    "/Users/carlosleyvagarcia/.nuget/packages/system.io.hashing/10.0.2/system.io.hashing.10.0.2.nupkg.sha512"
+  ],
+  "logs": []
+}

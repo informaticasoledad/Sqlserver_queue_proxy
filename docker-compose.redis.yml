@@ -1,0 +1,39 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: tdsqueue-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  tdsqueue-proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: tdsqueue-proxy:latest
+    container_name: tdsqueue-proxy-redis
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      DOTNET_ENVIRONMENT: Production
+      TDS_PROXY_ADMIN_TOKEN: dev-admin-token
+      Proxy__QueueEngine: Redis
+      Proxy__TargetHost: host.docker.internal
+      Proxy__TargetPort: 1433
+      Proxy__Redis__Configuration: redis:6379,abortConnect=false
+      Proxy__Redis__QueueKey: tdsqueue:requests:docker
+      Proxy__Redis__ProcessingQueueKey: tdsqueue:requests:docker:processing
+      Observability__HealthPort: 18080
+      Observability__EnableAdminEndpoint: true
+      Observability__EnableOtlpExporter: false
+    ports:
+      - "14330:14330"
+      - "18080:18080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

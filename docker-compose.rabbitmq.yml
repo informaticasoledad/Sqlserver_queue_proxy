@@ -1,0 +1,45 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: tdsqueue-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  tdsqueue-proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: tdsqueue-proxy:latest
+    container_name: tdsqueue-proxy-rabbitmq
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      DOTNET_ENVIRONMENT: Production
+      TDS_PROXY_ADMIN_TOKEN: dev-admin-token
+      Proxy__QueueEngine: RabbitMq
+      Proxy__TargetHost: host.docker.internal
+      Proxy__TargetPort: 1433
+      Proxy__RabbitMq__HostName: rabbitmq
+      Proxy__RabbitMq__Port: 5672
+      Proxy__RabbitMq__UserName: guest
+      Proxy__RabbitMq__Password: guest
+      Proxy__RabbitMq__VirtualHost: /
+      Proxy__RabbitMq__QueueName: tdsqueue.proxy.requests.docker
+      Observability__HealthPort: 18080
+      Observability__EnableAdminEndpoint: true
+      Observability__EnableOtlpExporter: false
+    ports:
+      - "14330:14330"
+      - "18080:18080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
