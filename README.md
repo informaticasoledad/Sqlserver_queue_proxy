@@ -45,12 +45,12 @@ Proxy TDS (Tabular Data Stream) para SQL Server como Worker Service en .NET 10.
 
 ### Tabla rápida de decisión
 
-| EnableMarsPassthrough | ForceQueueOnly | FallbackToPassthroughOnEncryptOff | Resultado |
-|---|---|---|---|
-| true | false | cualquier valor | Passthrough full-duplex (sin cola por sesión) |
-| false | false | true | QueuePipeline normal; si PreLogin da `0x00/0x00`, fallback a passthrough |
-| false | false | false | QueuePipeline normal; si PreLogin da `0x00/0x00`, falla sesión |
-| false | true | true/false | Cola obligatoria: sin passthrough; con TLS usa cola cifrada opaca |
+| EnableMarsPassthrough | ForceQueueOnly    | FallbackToPassthroughOnEncryptOff | Resultado                                     |
+|-----------------------|-------------------|-----------------------------------|-----------------------------------------------|
+| true                  | false             | cualquier valor                   | Passthrough full-duplex (sin cola por sesión) |
+| false                 | false             | true                              | QueuePipeline normal; si PreLogin da `0x00/0x00`, fallback a passthrough          |
+| false                 | false             | false                             | QueuePipeline normal; si PreLogin da `0x00/0x00`, falla sesión |
+| false                 | true              | true/false                        | Cola obligatoria: sin passthrough; con TLS usa cola cifrada opaca |
 
 ## Motores de cola
 

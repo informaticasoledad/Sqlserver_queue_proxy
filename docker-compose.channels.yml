@@ -1,0 +1,21 @@
+services:
+  tdsqueue-proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: tdsqueue-proxy:latest
+    container_name: tdsqueue-proxy-channel
+    environment:
+      DOTNET_ENVIRONMENT: Production
+      TDS_PROXY_ADMIN_TOKEN: dev-admin-token
+      Proxy__QueueEngine: Channel
+      Proxy__TargetHost: host.docker.internal
+      Proxy__TargetPort: 1433
+      Observability__HealthPort: 18080
+      Observability__EnableAdminEndpoint: true
+      Observability__EnableOtlpExporter: false
+    ports:
+      - "14330:14330"
+      - "18080:18080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

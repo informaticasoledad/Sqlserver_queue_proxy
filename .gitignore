@@ -1,1 +1,68 @@
+# macOS
 .DS_Store
+
+# Build results
+[Bb]in/
+[Oo]bj/
+
+# User-specific files
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+
+# IDE settings
+.vs/
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Test results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.trx
+*.coverage
+*.coveragexml
+
+# NuGet
+*.nupkg
+*.snupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+!**/[Pp]ackages/repositories.config
+
+# Dotnet tools and generated artifacts
+artifacts/
+publish/
+
+# ASP.NET Core / local environment
+appsettings.Development.json
+secrets.json
+
+# Rider
+*.sln.iml
+
+# Resharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+
+# EF Core migrations bundle
+bundle/
+
+# Node (if frontend is included)
+node_modules/
+
+# Coverage folders
+coverage/
+
+# Local databases
+*.db
+*.db-shm
+*.db-wal
+
+# Temporary files
+*.tmp
+*.temp
