@@ -28,7 +28,7 @@ services:
       TDS_PROXY_ADMIN_TOKEN: ${TDS_PROXY_ADMIN_TOKEN:-change-me}
       TDS_PROXY_TLS_CERT_PATH: ${TDS_PROXY_TLS_CERT_PATH:-/app/certs/tds-proxy-dev.pfx}
       TDS_PROXY_TLS_CERT_PASSWORD: ${TDS_PROXY_TLS_CERT_PASSWORD:-devpassword}
-      Proxy__QueueEngine: ${PROXY_QUEUE_ENGINE:-RabbitMq}
+      Proxy__QueueEngine: RabbitMq
       Proxy__WorkerCount: ${PROXY_WORKER_COUNT:-16}
       Proxy__ForceQueueOnly: true
       Proxy__FallbackToPassthroughOnEncryptOff: ${PROXY_FALLBACK_TO_PASSTHROUGH_ON_ENCRYPT_OFF:-true}
@@ -44,6 +44,8 @@ services:
       Proxy__RabbitMq__Password: ${PROXY_RABBITMQ_PASSWORD:-guest}
       Proxy__RabbitMq__VirtualHost: ${PROXY_RABBITMQ_VIRTUAL_HOST:-/}
       Proxy__RabbitMq__QueueName: ${PROXY_RABBITMQ_QUEUE_NAME:-tdsqueue.proxy.requests.docker}
+      Proxy__RabbitMq__UseTls: ${PROXY_RABBITMQ_USE_TLS:-false}
+      Proxy__RabbitMq__TlsAcceptInvalidCertificates: ${PROXY_RABBITMQ_TLS_ACCEPT_INVALID_CERTS:-false}
       Observability__ListenAddress: ${OBS_LISTEN_ADDRESS:-0.0.0.0}
       Observability__HealthPort: ${OBS_HEALTH_PORT:-18080}
       Observability__EnableAdminEndpoint: ${OBS_ENABLE_ADMIN_ENDPOINT:-false}

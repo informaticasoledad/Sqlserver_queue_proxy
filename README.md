@@ -564,6 +564,7 @@ Notas Compose:
 - Para compartir configuración base sin secretos, usa `.env.example`.
 - Cambia `PROXY_QUEUE_ENGINE` en `.env` para seleccionar motor: `Channel`, `Redis` o `RabbitMq`.
 - Cambia `PROXY_TARGET_HOST`/`PROXY_TARGET_PORT` en `.env` si tu SQL está en otra red.
+- Para perfil dev rápido con Redis, usa `REDIS_APPENDONLY=no` (menos durabilidad, menor latencia).
 - Ajusta `PROXY_MAX_MESSAGE_BYTES` para limitar tamaño máximo de mensaje TDS y reducir riesgo de DoS por memoria.
 - Controla exposición de endpoints con `OBS_LISTEN_ADDRESS` y `OBS_ALLOW_REMOTE_ADMIN`.
 - En RabbitMQ puedes abrir UI en `http://localhost:${RABBITMQ_MANAGEMENT_PORT}`.

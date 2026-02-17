@@ -2,7 +2,7 @@ services:
   redis:
     image: redis:7-alpine
     container_name: ${REDIS_CONTAINER_NAME:-tdsqueue-redis}
-    command: ["redis-server", "--appendonly", "yes"]
+    command: ["redis-server", "--appendonly", "${REDIS_APPENDONLY:-yes}"]
     ports:
       - "${REDIS_PORT:-6379}:6379"
     healthcheck:
