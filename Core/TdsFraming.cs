@@ -8,9 +8,16 @@ public static class TdsFraming
 {
     private const int HeaderSize = 8;
     private const byte EndOfMessage = 0x01;
+    private const int DefaultMaxMessageBytes = 1024 * 1024;
 
     public static async ValueTask<PooledMessageBuffer?> ReadMessageAsync(
         PipeReader reader,
+        CancellationToken cancellationToken)
+        => await ReadMessageAsync(reader, DefaultMaxMessageBytes, cancellationToken).ConfigureAwait(false);
+
+    public static async ValueTask<PooledMessageBuffer?> ReadMessageAsync(
+        PipeReader reader,
+        int maxMessageBytes,
         CancellationToken cancellationToken)
     {
         var payload = new PooledMessageBuffer(4096);
@@ -20,7 +27,7 @@ public static class TdsFraming
             var result = await reader.ReadAsync(cancellationToken).ConfigureAwait(false);
             var buffer = result.Buffer;
 
-            if (TryReadMessage(ref buffer, payload, out var isCompletedMessage))
+            if (TryReadMessage(ref buffer, payload, maxMessageBytes, out var isCompletedMessage))
             {
                 reader.AdvanceTo(buffer.Start, buffer.End);
                 if (isCompletedMessage)
@@ -50,6 +57,7 @@ public static class TdsFraming
     private static bool TryReadMessage(
         ref ReadOnlySequence<byte> buffer,
         PooledMessageBuffer collector,
+        int maxMessageBytes,
         out bool isCompletedMessage)
     {
         isCompletedMessage = false;
@@ -70,6 +78,12 @@ public static class TdsFraming
             if (cursor.Length < packetLength)
             {
                 break;
+            }
+
+            if (collector.Length + packetLength > maxMessageBytes)
+            {
+                throw new InvalidOperationException(
+                    $"TDS message size exceeded configured limit of {maxMessageBytes} bytes.");
             }
 
             var packet = cursor.Slice(0, packetLength);

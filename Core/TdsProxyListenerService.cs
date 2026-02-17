@@ -139,7 +139,10 @@ public sealed class TdsProxyListenerService : BackgroundService
                 activity?.SetTag("session.id", session.SessionId);
 
                 var readStarted = Stopwatch.GetTimestamp();
-                var requestBuffer = await TdsFraming.ReadMessageAsync(session.ClientReader, cancellationToken)
+                var requestBuffer = await TdsFraming.ReadMessageAsync(
+                        session.ClientReader,
+                        _options.MaxMessageBytes,
+                        cancellationToken)
                     .ConfigureAwait(false);
                 _metrics.RecordStageLatency("read_client", Stopwatch.GetElapsedTime(readStarted).TotalMilliseconds);
 
@@ -382,7 +385,10 @@ public sealed class TdsProxyListenerService : BackgroundService
 
         while (!cancellationToken.IsCancellationRequested)
         {
-            var responseBuffer = await TdsFraming.ReadMessageAsync(targetReader, cancellationToken)
+            var responseBuffer = await TdsFraming.ReadMessageAsync(
+                    targetReader,
+                    _options.MaxMessageBytes,
+                    cancellationToken)
                 .ConfigureAwait(false);
 
             if (responseBuffer is null)

@@ -371,6 +371,8 @@ Requiere:
 
 - `Observability:EnableAdminEndpoint = true`
 - header `X-Admin-Token` con `Observability:AdminToken`
+- Por seguridad, `Observability:AllowRemoteAdmin = false` por defecto (solo origen local).
+- `Observability:ListenAddress` controla el bind del listener (`127.0.0.1` recomendado fuera de contenedores).
 
 Endpoints:
 
@@ -562,10 +564,29 @@ Notas Compose:
 - Para compartir configuración base sin secretos, usa `.env.example`.
 - Cambia `PROXY_QUEUE_ENGINE` en `.env` para seleccionar motor: `Channel`, `Redis` o `RabbitMq`.
 - Cambia `PROXY_TARGET_HOST`/`PROXY_TARGET_PORT` en `.env` si tu SQL está en otra red.
+- Ajusta `PROXY_MAX_MESSAGE_BYTES` para limitar tamaño máximo de mensaje TDS y reducir riesgo de DoS por memoria.
+- Controla exposición de endpoints con `OBS_LISTEN_ADDRESS` y `OBS_ALLOW_REMOTE_ADMIN`.
 - En RabbitMQ puedes abrir UI en `http://localhost:${RABBITMQ_MANAGEMENT_PORT}`.
 - Si habilitas TLS en el proxy, añade al servicio:
   - variables `TDS_PROXY_TLS_CERT_PATH`, `TDS_PROXY_TLS_CERT_PASSWORD`
   - volumen de solo lectura con el `.pfx` (ej. `/app/certs/tds-proxy-dev.pfx`).
+
+### Tests de integración de motores de cola
+
+- Proyecto: `tests/TDSQueue.Proxy.IntegrationTests/TDSQueue.Proxy.IntegrationTests.csproj`
+- Compose de soporte (Redis + RabbitMQ): `tests/TDSQueue.Proxy.IntegrationTests/docker-compose.integration.yml`
+
+Ejecución:
+
+```bash
+dotnet test tests/TDSQueue.Proxy.IntegrationTests/TDSQueue.Proxy.IntegrationTests.csproj
+```
+
+Cobertura incluida:
+
+- `Channel`: enqueue -> read -> ack.
+- `Redis`: enqueue -> read -> ack y `nack(requeue=true)` con redelivery.
+- `RabbitMq`: enqueue -> read -> ack y `nack(requeue=true)` con redelivery.
 
 ## Benchmark y Chaos
 

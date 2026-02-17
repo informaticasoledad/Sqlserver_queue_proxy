@@ -15,6 +15,9 @@ public sealed class ProxyOptions
     [Range(1, 200000)]
     public int ChannelCapacity { get; init; } = 1000;
 
+    [Range(1024, 16777216)]
+    public int MaxMessageBytes { get; init; } = 1048576;
+
     [Range(1, 3600)]
     public int MetricsReportIntervalSeconds { get; init; } = 10;
 

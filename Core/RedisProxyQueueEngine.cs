@@ -29,6 +29,7 @@ public sealed class RedisProxyQueueEngine : IProxyQueueEngine, IDisposable
 
         _mux = ConnectionMultiplexer.Connect(redisOptions);
         _db = _mux.GetDatabase();
+        RequeueStaleProcessingMessages();
 
         _logger.LogInformation(
             "Redis queue engine enabled. QueueKey={QueueKey}, ProcessingKey={ProcessingKey}, Endpoint={Config}",
@@ -80,10 +81,10 @@ public sealed class RedisProxyQueueEngine : IProxyQueueEngine, IDisposable
 
         while (!cancellationToken.IsCancellationRequested)
         {
-            RedisResult result;
+            RedisValue result;
             try
             {
-                result = await ExecuteBlockingPopAsync(cancellationToken).ConfigureAwait(false);
+                result = await ExecutePopWithPollingAsync(cancellationToken).ConfigureAwait(false);
                 consecutiveFailures = 0;
             }
             catch (OperationCanceledException)
@@ -112,7 +113,7 @@ public sealed class RedisProxyQueueEngine : IProxyQueueEngine, IDisposable
                 continue;
             }
 
-            if (result.IsNull)
+            if (result.IsNullOrEmpty)
             {
                 continue;
             }
@@ -145,18 +146,32 @@ public sealed class RedisProxyQueueEngine : IProxyQueueEngine, IDisposable
         _mux.Dispose();
     }
 
-    private async Task<RedisResult> ExecuteBlockingPopAsync(CancellationToken cancellationToken)
+    private async Task<RedisValue> ExecutePopWithPollingAsync(CancellationToken cancellationToken)
     {
-        return await _db.ExecuteAsync(
-                "BRPOPLPUSH",
-                new RedisValue[]
-                {
+        var delayMs = 100;
+        var deadline = DateTime.UtcNow.AddSeconds(Math.Max(1, _options.Redis.PopBlockTimeoutSeconds));
+
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            var payload = await _db.ListRightPopLeftPushAsync(
                     _options.Redis.QueueKey,
-                    _options.Redis.ProcessingQueueKey,
-                    _options.Redis.PopBlockTimeoutSeconds
-                })
-            .WaitAsync(cancellationToken)
-            .ConfigureAwait(false);
+                    _options.Redis.ProcessingQueueKey)
+                .ConfigureAwait(false);
+
+            if (!payload.IsNullOrEmpty)
+            {
+                return payload;
+            }
+
+            if (DateTime.UtcNow >= deadline)
+            {
+                return RedisValue.Null;
+            }
+
+            await Task.Delay(delayMs, cancellationToken).ConfigureAwait(false);
+        }
+
+        return RedisValue.Null;
     }
 
     private async ValueTask AckAsync(string payload, CancellationToken cancellationToken)
@@ -169,12 +184,39 @@ public sealed class RedisProxyQueueEngine : IProxyQueueEngine, IDisposable
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        await _db.ListRemoveAsync(_options.Redis.ProcessingQueueKey, payload, 1).ConfigureAwait(false);
-        if (!requeue)
+        var queueTarget = requeue ? _options.Redis.QueueKey : string.Empty;
+        await _db.ScriptEvaluateAsync(
+                @"
+local removed = redis.call('LREM', KEYS[1], 1, ARGV[1])
+if removed == 1 and ARGV[2] == '1' then
+    redis.call('LPUSH', KEYS[2], ARGV[1])
+end
+return removed
+",
+                new RedisKey[] { _options.Redis.ProcessingQueueKey, queueTarget },
+                new RedisValue[] { payload, requeue ? "1" : "0" })
+            .ConfigureAwait(false);
+    }
+
+    private void RequeueStaleProcessingMessages()
+    {
+        var moved = 0;
+        while (true)
         {
-            return;
+            var payload = _db.ListRightPopLeftPush(_options.Redis.ProcessingQueueKey, _options.Redis.QueueKey);
+            if (payload.IsNull)
+            {
+                break;
+            }
+
+            moved++;
         }
 
-        await _db.ListLeftPushAsync(_options.Redis.QueueKey, payload).ConfigureAwait(false);
+        if (moved > 0)
+        {
+            _logger.LogWarning(
+                "Redis queue engine recovered {Count} stale messages from processing list to queue list.",
+                moved);
+        }
     }
 }

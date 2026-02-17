@@ -29,14 +29,17 @@ services:
       Proxy__QueueEngine: ${PROXY_QUEUE_ENGINE:-RabbitMq}
       Proxy__TargetHost: ${PROXY_TARGET_HOST:-host.docker.internal}
       Proxy__TargetPort: ${PROXY_TARGET_PORT:-1433}
+      Proxy__MaxMessageBytes: ${PROXY_MAX_MESSAGE_BYTES:-1048576}
       Proxy__RabbitMq__HostName: ${PROXY_RABBITMQ_HOSTNAME:-rabbitmq}
       Proxy__RabbitMq__Port: ${PROXY_RABBITMQ_PORT:-5672}
       Proxy__RabbitMq__UserName: ${PROXY_RABBITMQ_USERNAME:-guest}
       Proxy__RabbitMq__Password: ${PROXY_RABBITMQ_PASSWORD:-guest}
       Proxy__RabbitMq__VirtualHost: ${PROXY_RABBITMQ_VIRTUAL_HOST:-/}
       Proxy__RabbitMq__QueueName: ${PROXY_RABBITMQ_QUEUE_NAME:-tdsqueue.proxy.requests.docker}
+      Observability__ListenAddress: ${OBS_LISTEN_ADDRESS:-0.0.0.0}
       Observability__HealthPort: ${OBS_HEALTH_PORT:-18080}
-      Observability__EnableAdminEndpoint: ${OBS_ENABLE_ADMIN_ENDPOINT:-true}
+      Observability__EnableAdminEndpoint: ${OBS_ENABLE_ADMIN_ENDPOINT:-false}
+      Observability__AllowRemoteAdmin: ${OBS_ALLOW_REMOTE_ADMIN:-false}
       Observability__EnableOtlpExporter: ${OBS_ENABLE_OTLP_EXPORTER:-false}
     ports:
       - "${PROXY_LISTEN_PORT:-14330}:14330"

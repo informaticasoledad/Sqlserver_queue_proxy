@@ -1,4 +1,5 @@
 using System.Net;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -38,7 +39,7 @@ public sealed class HealthEndpointService : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var listener = new HttpListener();
-        listener.Prefixes.Add($"http://*:{_observability.HealthPort}/");
+        listener.Prefixes.Add($"http://{ToHttpListenerHost(_observability.ListenAddress)}:{_observability.HealthPort}/");
         listener.Start();
 
         _logger.LogInformation("Health/Admin endpoint listening on port {Port}", _observability.HealthPort);
@@ -176,14 +177,42 @@ public sealed class HealthEndpointService : BackgroundService
             return false;
         }
 
+        if (!_observability.AllowRemoteAdmin && request.RemoteEndPoint is { } remote && !IPAddress.IsLoopback(remote.Address))
+        {
+            return false;
+        }
+
         var configuredToken = SecretResolver.Resolve(_observability.AdminToken ?? string.Empty);
         if (string.IsNullOrWhiteSpace(configuredToken))
         {
             return false;
         }
 
-        var requestToken = request.Headers["X-Admin-Token"];
-        return string.Equals(configuredToken, requestToken, StringComparison.Ordinal);
+        var requestToken = request.Headers["X-Admin-Token"] ?? string.Empty;
+        return FixedTimeTokenEquals(configuredToken, requestToken);
+    }
+
+    private static bool FixedTimeTokenEquals(string configuredToken, string requestToken)
+    {
+        var configuredBytes = Encoding.UTF8.GetBytes(configuredToken);
+        var requestBytes = Encoding.UTF8.GetBytes(requestToken);
+        return CryptographicOperations.FixedTimeEquals(configuredBytes, requestBytes);
+    }
+
+    private static string ToHttpListenerHost(string listenAddress)
+    {
+        if (string.IsNullOrWhiteSpace(listenAddress))
+        {
+            return "127.0.0.1";
+        }
+
+        return listenAddress switch
+        {
+            "0.0.0.0" => "*",
+            "*" => "*",
+            "+" => "+",
+            _ => listenAddress
+        };
     }
 
     private static async Task<T?> ReadBodyAsync<T>(HttpListenerRequest request, CancellationToken cancellationToken)

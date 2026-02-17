@@ -29,7 +29,10 @@ public sealed class TdsPreLoginNegotiationService
     {
         await session.EnsureTargetConnectedAsync(cancellationToken).ConfigureAwait(false);
 
-        var clientPreLogin = await TdsFraming.ReadMessageAsync(session.ClientReader, cancellationToken)
+        var clientPreLogin = await TdsFraming.ReadMessageAsync(
+                session.ClientReader,
+                _options.MaxMessageBytes,
+                cancellationToken)
             .ConfigureAwait(false);
 
         if (clientPreLogin is null)
@@ -57,7 +60,10 @@ public sealed class TdsPreLoginNegotiationService
         await targetWriter.WriteAsync(clientPreLoginBytes, cancellationToken).ConfigureAwait(false);
         await targetWriter.FlushAsync(cancellationToken).ConfigureAwait(false);
 
-        var targetPreLogin = await TdsFraming.ReadMessageAsync(targetReader, cancellationToken)
+        var targetPreLogin = await TdsFraming.ReadMessageAsync(
+                targetReader,
+                _options.MaxMessageBytes,
+                cancellationToken)
             .ConfigureAwait(false);
 
         if (targetPreLogin is null)

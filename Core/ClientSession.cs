@@ -48,11 +48,12 @@ public sealed class ClientSession : IAsyncDisposable
 
     public async ValueTask EnsureTargetConnectedAsync(CancellationToken cancellationToken)
     {
-        if (_targetLease is { } lease && lease.Client.Connected)
+        if (_targetLease is { } lease && IsTargetConnectionAlive(lease.Client))
         {
             return;
         }
 
+        InvalidateTargetConnection();
         var newLease = await _targetConnectionManager.ConnectAsync(_targetEndpoint, cancellationToken)
             .ConfigureAwait(false);
 
@@ -96,6 +97,34 @@ public sealed class ClientSession : IAsyncDisposable
 
     public bool TryDequeueAwaitingResponse(out ProxyContext? context) =>
         _awaitingResponses.TryDequeue(out context);
+
+    public void InvalidateTargetConnection()
+    {
+        if (TargetReader is not null)
+        {
+            try { TargetReader.Complete(); } catch { }
+            TargetReader = null;
+        }
+
+        if (TargetWriter is not null)
+        {
+            try { TargetWriter.Complete(); } catch { }
+            TargetWriter = null;
+        }
+
+        try
+        {
+            TargetTransportStream?.Dispose();
+        }
+        catch { }
+        TargetTransportStream = null;
+
+        if (_targetLease is { } lease)
+        {
+            lease.Dispose();
+            _targetLease = null;
+        }
+    }
 
     public async ValueTask DisposeAsync()
     {
@@ -153,5 +182,18 @@ public sealed class ClientSession : IAsyncDisposable
         }
 
         Client.Dispose();
+    }
+
+    private static bool IsTargetConnectionAlive(TcpClient client)
+    {
+        try
+        {
+            var socket = client.Client;
+            return !(socket.Poll(0, SelectMode.SelectRead) && socket.Available == 0);
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

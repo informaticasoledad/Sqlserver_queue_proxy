@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Net.Sockets;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -202,6 +203,11 @@ public sealed class TdsProxyWorkerService : BackgroundService
         }
         catch (Exception ex)
         {
+            if (ex is IOException || ex is SocketException || ex is ObjectDisposedException)
+            {
+                context.Session.InvalidateTargetConnection();
+            }
+
             _logger.LogError(
                 ex,
                 "Worker {WorkerId}: failed to process session {SessionId}",
