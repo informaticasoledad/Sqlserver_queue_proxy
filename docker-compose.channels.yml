@@ -8,7 +8,7 @@ services:
     environment:
       DOTNET_ENVIRONMENT: ${DOTNET_ENVIRONMENT:-Production}
       TDS_PROXY_ADMIN_TOKEN: ${TDS_PROXY_ADMIN_TOKEN:-change-me}
-      Proxy__QueueEngine: ${PROXY_QUEUE_ENGINE_CHANNEL:-Channel}
+      Proxy__QueueEngine: ${PROXY_QUEUE_ENGINE:-Channel}
       Proxy__TargetHost: ${PROXY_TARGET_HOST:-host.docker.internal}
       Proxy__TargetPort: ${PROXY_TARGET_PORT:-1433}
       Observability__HealthPort: ${OBS_HEALTH_PORT:-18080}

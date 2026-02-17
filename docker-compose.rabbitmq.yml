@@ -26,7 +26,7 @@ services:
     environment:
       DOTNET_ENVIRONMENT: ${DOTNET_ENVIRONMENT:-Production}
       TDS_PROXY_ADMIN_TOKEN: ${TDS_PROXY_ADMIN_TOKEN:-change-me}
-      Proxy__QueueEngine: ${PROXY_QUEUE_ENGINE_RABBITMQ:-RabbitMq}
+      Proxy__QueueEngine: ${PROXY_QUEUE_ENGINE:-RabbitMq}
       Proxy__TargetHost: ${PROXY_TARGET_HOST:-host.docker.internal}
       Proxy__TargetPort: ${PROXY_TARGET_PORT:-1433}
       Proxy__RabbitMq__HostName: ${PROXY_RABBITMQ_HOSTNAME:-rabbitmq}

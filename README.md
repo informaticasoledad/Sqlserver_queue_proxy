@@ -560,6 +560,7 @@ Notas Compose:
 
 - Los compose leen variables desde `.env` (incluyendo host/puerto de SQL Server y credenciales).
 - Para compartir configuración base sin secretos, usa `.env.example`.
+- Cambia `PROXY_QUEUE_ENGINE` en `.env` para seleccionar motor: `Channel`, `Redis` o `RabbitMq`.
 - Cambia `PROXY_TARGET_HOST`/`PROXY_TARGET_PORT` en `.env` si tu SQL está en otra red.
 - En RabbitMQ puedes abrir UI en `http://localhost:${RABBITMQ_MANAGEMENT_PORT}`.
 - Si habilitas TLS en el proxy, añade al servicio:
