@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TDSQueue.Proxy")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b6e8c5e5f4f3dfe5d7a07af0d61799684fbb800a")]
 [assembly: System.Reflection.AssemblyProductAttribute("TDSQueue.Proxy")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TDSQueue.Proxy")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
